@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from .forms import SingupForm
+from .form import SingupForm
 
 @api_view(['POST'])
 @authentication_classes([])
@@ -10,7 +10,7 @@ from .forms import SingupForm
 def signup(request):
     data = request.data
     message = 'success'
-    
+
     form = SingupForm({
         'email': data.get('email'),
         'name': data.get('name'),
@@ -21,6 +21,7 @@ def signup(request):
     if form.is_valid():
         form.save()
     else:
+        print(form.errors)
         message = 'error'
     
-    return JsonResponse({'success': message})
+    return JsonResponse({'status': message})
