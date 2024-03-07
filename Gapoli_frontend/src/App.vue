@@ -7,7 +7,7 @@
 					<a href="#" class="text-xl">Gapoli</a>
 				</div>
 
-				<div class="menu-center flex space-x-12">
+				<div class="menu-center flex space-x-12" v-if="userStore.user.isAuthenticated">
 					<a href="#" class="text-purple-700">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
 							stroke="currentColor" class="w-6 h-6">
@@ -42,11 +42,20 @@
 				</div>
 
 				<div class="menu-right">
-					<a href="#">
-						<img style="width: 50px;"
-							src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
-							class="rounded-full">
-					</a>
+				
+					<template v-if="userStore.user.isAuthenticated">
+						<a href="#">
+							<img style="width: 50px;"
+								src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
+								class="rounded-full">
+						</a>
+					</template>
+
+					<template v-else>
+						<RouterLink to="/login" class="mr-4 py-4 px-6 text-white bg-sky-600 rounded-lg">Login</RouterLink>
+						<RouterLink to="/signup" class="py-4 px-6 text-white bg-purple-600 rounded-lg">SignUp</RouterLink>
+					</template>
+				
 				</div>
 			</div>
 		</div>
@@ -81,10 +90,10 @@ export default {
 		this.userStore.initStore()
 
 		const token = this.userStore.user.access
-		if(token){
+		if (token) {
 			axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 		}
-		else{
+		else {
 			axios.defaults.headers.common["Authorization"] = "";
 		}
 	}

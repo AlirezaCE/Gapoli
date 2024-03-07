@@ -78,7 +78,6 @@ export const useUserStore = defineStore({
                 refresh: this.user.refresh
             })
                 .then((Response) => {
-                    console.log('aaaaaaaa', Response)
                     this.user.access = Response.data.access
 
                     localStorage.setItem('user.access', Response.data.access)
