@@ -18,18 +18,21 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
 
         <div class="main-center col-span-2 space-y-4">
             <div class="p-2 bg-white border border-gray-200 rounded-lg">
-                <div class="p-4">
-                    <textarea class="p-4 w-full bg-gray-100 rounded-lg"
-                        placeholder="What are you looking for today?"></textarea>
-                </div>
+                <form v-on:submit.prevent="submitForm" method="post">
+                    <div class="p-4">
+                        <textarea v-model="body" class="p-4 w-full bg-gray-100 rounded-lg"
+                            placeholder="What are you looking for today?"></textarea>
+                    </div>
 
-                <div class="p-4 border-t border-gray-100 flex justify-between">
-                    <a href="#" class="inline-block py-4 px-6 bg-sky-600 text-white rounded-lg">Attach</a>
-                    <a href="#" class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg">Post</a>
-                </div>
+                    <div class="p-4 border-t border-gray-100 flex justify-between">
+                        <a href="#" class="inline-block py-4 px-6 bg-sky-600 text-white rounded-lg">Attach</a>
+                        <button href="#"
+                            class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg">Post</button>
+                    </div>
+                </form>
             </div>
 
-            <div class="p-4 bg-white border border-gray-200 rounded-lg">
+            <!-- <div class="p-4 bg-white border border-gray-200 rounded-lg">
                 <div class="mb-6 flex items-center justify-between">
 
                     <div class="flex items-center space-x-6">
@@ -79,23 +82,23 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
                     </div>
 
                 </div>
-            </div>
+            </div> -->
 
-            <div class="p-4 bg-white border border-gray-200 rounded-lg">
+
+            <div class="p-4 bg-white border border-gray-200 rounded-lg" v-for="post in posts" v-bind:key="post.id">
                 <div class="mb-6 flex items-center justify-between">
 
                     <div class="flex items-center space-x-6">
                         <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
                             class="w-[40px] rounded-full">
-                        <p><strong>Hulk Smash</strong></p>
+                        <p><strong>{{ post.created_by.name }}</strong></p>
                     </div>
 
-                    <div class="text-gray-600">2 minutes ago</div>
+                    <div class="text-gray-600">{{ post.since_created }} ago</div>
 
                 </div>
 
-                <p>what a great day we defeat loki an his army i shoot thor and i smash every thing i am the incredible
-                    hulk</p>
+                <p>{{ post.body }}</p>
 
                 <div class="my-6 flex justify-between">
                     <div class="flex space-x-6">
@@ -143,14 +146,55 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
 </template>
 
 <script>
+import axios from 'axios'
 import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
 
 export default {
     name: 'SearchView',
+
     components: {
         PeopleYouMayKnow,
         Trends,
+    },
+
+    data() {
+        return {
+            posts: [],
+            body: '',
+        }
+    },
+
+    mounted() {
+        this.getFeed()
+    },
+
+    methods: {
+        getFeed() {
+            axios
+                .get('/api/post/')
+                .then(Response => {
+                    this.posts = Response.data
+                })
+                .catch(error => {
+                    console.log('error', error)
+                })
+        },
+
+        submitForm() {
+            console.log('body is ', this.body)
+
+            axios
+                .post('/api/post/create/', {'body': this.body})
+                .then(Response => {
+                    console.log('data from back', Response.data)
+                    this.posts.unshift(Response.data)
+                    this.body = ''
+                })
+                .catch(error => {
+                    console.log('error', error)
+                }) 
+        }
     }
 }
 </script>
