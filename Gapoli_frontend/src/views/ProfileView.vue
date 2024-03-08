@@ -29,7 +29,7 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
                         <button href="#"
                             class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg">Post</button>
                     </div>
-                </form>
+                </form> 
             </div>
 
             <!-- <div class="p-4 bg-white border border-gray-200 rounded-lg">
