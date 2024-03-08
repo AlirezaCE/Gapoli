@@ -1,9 +1,26 @@
 import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
 
 <template>
-    <div class="max-w-7xl mx-auto grid grid-cols-10 gap-4">
-        <div class="main-center col-span-7 space-y-4">
-            <div class="p-2 bg-white border border-gray-200 rounded-lg">
+    <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
+        <div class="main-left col-span-1">
+            <div class="p-4 bg-white border border-gray-200 text-center rounded-lg">
+                <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
+                    class="mb-6 rounded-full">
+
+                <p><strong>{{ user.name }}</strong></p>
+
+                <div class="mt-6 flex space-x-8 justify-between">
+                    <p class="text-xs text-gray-500">125 friends</p>
+                    <p class="text-xs text-gray-500">23 posts</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-center col-span-2 space-y-4">
+            <div 
+            v-if="userStore.user.id === user.id"
+            class="p-2 bg-white border border-gray-200 rounded-lg"
+            >
                 <form v-on:submit.prevent="submitForm" method="post">
                     <div class="p-4">
                         <textarea v-model="body" class="p-4 w-full bg-gray-100 rounded-lg"
@@ -124,7 +141,7 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
 
         </div>
 
-        <div class="main-right col-span-3 space-y-4">
+        <div class="main-right col-span-1 space-y-4">
             <PeopleYouMayKnow />
             <Trends />
         </div>
@@ -135,9 +152,18 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
 import axios from 'axios'
 import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
+import { useUserStore } from '@/stores/user';
 
 export default {
-    name: 'FeedView',
+    name: 'ProfileView',
+	
+    setup() {
+		const userStore = useUserStore()
+
+		return {
+			userStore
+		}
+	},
 
     components: {
         PeopleYouMayKnow,
@@ -148,6 +174,7 @@ export default {
         return {
             posts: [],
             body: '',
+            user: '',
         }
     },
 
@@ -158,9 +185,10 @@ export default {
     methods: {
         getFeed() {
             axios
-                .get('/api/post/')
+                .get(`/api/post/profile/${this.$route.params.id}/`)
                 .then(Response => {
-                    this.posts = Response.data
+                    this.posts = Response.data.post
+                    this.user = Response.data.user
                 })
                 .catch(error => {
                     console.log('error', error)

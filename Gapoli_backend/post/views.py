@@ -4,6 +4,9 @@ from rest_framework.decorators import api_view
 from .models import Post, PostAttachment
 from .serializers import PostSerializer
 from .forms import PostForm
+from account.models import User
+from account.serializers import UserNameSerializer
+
 
 @api_view(['GET'])
 def post_list(request):
@@ -11,6 +14,19 @@ def post_list(request):
     serializer = PostSerializer(posts, many=True)
     
     return JsonResponse(serializer.data, safe=False)
+
+@api_view(['GET'])
+def user_post_profile(request, id):
+    user = User.objects.get(pk = id)
+    posts = Post.objects.filter(created_by_id = id)
+    
+    post_serializer = PostSerializer(posts, many=True)
+    user_serializer = UserNameSerializer(user)
+    
+    return JsonResponse({
+        'post': post_serializer.data,
+        'user': user_serializer.data
+        }, safe=False)
 
 @api_view(['POST'])
 def post_create(request):
