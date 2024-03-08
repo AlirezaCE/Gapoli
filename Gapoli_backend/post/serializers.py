@@ -1,9 +1,9 @@
 from .models import Post
 from rest_framework import serializers
-from account.serializers import UserNameSerializer
+from account.serializers import UserSerializer
 
 class PostSerializer(serializers.ModelSerializer):
-    created_by = UserNameSerializer(read_only=True)
+    created_by = UserSerializer(read_only=True)
     
     class Meta:
         model = Post

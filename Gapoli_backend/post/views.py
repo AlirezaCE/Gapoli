@@ -5,7 +5,7 @@ from .models import Post, PostAttachment
 from .serializers import PostSerializer
 from .forms import PostForm
 from account.models import User
-from account.serializers import UserNameSerializer
+from account.serializers import UserSerializer
 
 
 @api_view(['GET'])
@@ -21,7 +21,7 @@ def user_post_profile(request, id):
     posts = Post.objects.filter(created_by_id = id)
     
     post_serializer = PostSerializer(posts, many=True)
-    user_serializer = UserNameSerializer(user)
+    user_serializer = UserSerializer(user)
     
     return JsonResponse({
         'post': post_serializer.data,
