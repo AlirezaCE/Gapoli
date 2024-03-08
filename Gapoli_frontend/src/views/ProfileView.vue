@@ -17,10 +17,7 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
         </div>
 
         <div class="main-center col-span-2 space-y-4">
-            <div 
-            v-if="userStore.user.id === user.id"
-            class="p-2 bg-white border border-gray-200 rounded-lg"
-            >
+            <div v-if="userStore.user.id === user.id" class="p-2 bg-white border border-gray-200 rounded-lg">
                 <form v-on:submit.prevent="submitForm" method="post">
                     <div class="p-4">
                         <textarea v-model="body" class="p-4 w-full bg-gray-100 rounded-lg"
@@ -110,14 +107,14 @@ import { useUserStore } from '@/stores/user';
 
 export default {
     name: 'ProfileView',
-	
-    setup() {
-		const userStore = useUserStore()
 
-		return {
-			userStore
-		}
-	},
+    setup() {
+        const userStore = useUserStore()
+
+        return {
+            userStore
+        }
+    },
 
     components: {
         PeopleYouMayKnow,
@@ -137,6 +134,16 @@ export default {
         this.getFeed()
     },
 
+    watch: {
+        "$route.params.id": {
+            handler: function () {
+                this.getFeed()
+            },
+            deep: true,
+            immediate: true,
+        },
+    },
+
     methods: {
         getFeed() {
             axios
@@ -154,7 +161,7 @@ export default {
             console.log('body is ', this.body)
 
             axios
-                .post('/api/post/create/', {'body': this.body})
+                .post('/api/post/create/', { 'body': this.body })
                 .then(Response => {
                     console.log('data from back', Response.data)
                     this.posts.unshift(Response.data)
@@ -162,7 +169,7 @@ export default {
                 })
                 .catch(error => {
                     console.log('error', error)
-                }) 
+                })
         }
     }
 }
