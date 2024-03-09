@@ -2,15 +2,7 @@ from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from .form import SingupForm
-
-
-@api_view(['GET'])
-def detail(request):
-    return JsonResponse({
-        'id': request.user.id,
-        'name': request.user.name,
-        'email': request.user.email,
-    })
+from .models import User, FriendshipRequest
 
 
 @api_view(['POST'])
@@ -34,3 +26,21 @@ def signup(request):
         message = 'error'
     
     return JsonResponse({'status': message})
+
+
+@api_view(['GET'])
+def detail(request):
+    return JsonResponse({
+        'id': request.user.id,
+        'name': request.user.name,
+        'email': request.user.email,
+    })
+
+
+@api_view(['POST'])
+def friendship_request(request, id):
+    user_reciver = User.objects.get(pk=id)
+    
+    friendship_request = FriendshipRequest(reciver=user_reciver, sender=request.user)
+
+    return JsonResponse({'message': 'friendship request was successful'})

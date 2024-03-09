@@ -5,6 +5,16 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from django.utils import timezone
 
 
+SENT = 'sent'
+ACCEPTED = 'accepted'
+REJECTED = 'rejected'
+STATUS_CHOICES = (
+    (SENT, 'Sent'),
+    (ACCEPTED, 'Accepted'),
+    (REJECTED, 'Rejected'),    
+)
+
+
 class CustomUserManager(UserManager):
     def _create_user(self, name, email, password, **extra_fields):
         if not email:
@@ -33,6 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=225, blank=True, null=True, default='')
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
+    friends = models.ManyToManyField('self')
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -46,3 +57,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = []
+    
+
+class FriendshipRequest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reciver = models.ForeignKey(User, related_name="friendship_reciver", on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name="friendship_sender", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=9, choices=STATUS_CHOICES, default=SENT)

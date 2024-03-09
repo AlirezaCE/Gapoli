@@ -13,6 +13,14 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
                     <p class="text-xs text-gray-500">125 friends</p>
                     <p class="text-xs text-gray-500">23 posts</p>
                 </div>
+                <div class="mt-6">
+                    <button 
+                        class="inline-block py-3 px-4 bg-purple-600 text-white rounded-lg"
+                        @click="sendFriendshipRequest"
+                    >
+                        friendship request
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -145,6 +153,18 @@ export default {
     },
 
     methods: {
+        
+        sendFriendshipRequest(){
+            axios
+                .post(`/api/friendship/request/${this.$route.params.id}/`)
+                .then(Response => {
+                    console.log("response ", Response.data)
+                })
+                .catch(error => {
+                    console.log('error', error)
+                })
+        },
+
         getFeed() {
             axios
                 .get(`/api/post/profile/${this.$route.params.id}/`)
