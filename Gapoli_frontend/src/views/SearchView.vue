@@ -35,7 +35,9 @@
                     </strong></p>
 
                     <div class="mt-6 flex space-x-8 justify-between">
-                        <p class="text-xs text-gray-500">125 friends</p>
+                        <p class="text-xs text-gray-500">
+                            {{ user.friends_count }} {{ user.friends_count == 1 ? 'friend' : 'friends' }}
+                        </p>
                         <p class="text-xs text-gray-500">23 posts</p>
                     </div>
                 </div>

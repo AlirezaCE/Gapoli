@@ -1,5 +1,3 @@
-import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
-
 <template>
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
         <div class="main-left col-span-1">
@@ -10,14 +8,15 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
                 <p><strong>{{ user.name }}</strong></p>
 
                 <div class="mt-6 flex space-x-8 justify-between">
-                    <p class="text-xs text-gray-500">125 friends</p>
+                    <RouterLink :to="{ 'name': 'friends', params: { id: user.id } }" class="text-xs text-gray-500">
+                        {{ user.friends_count }} {{ user.friends_count == 1 ? 'friend' : 'friends' }}
+                    </RouterLink>
                     <p class="text-xs text-gray-500">23 posts</p>
                 </div>
                 <div class="mt-6">
-                    <button 
+                    <button v-if="userStore.user.id !== user.id"
                         class="inline-block py-3 px-4 bg-purple-600 text-white rounded-lg"
-                        @click="sendFriendshipRequest"
-                    >
+                        @click="sendFriendshipRequest">
                         friendship request
                     </button>
                 </div>
@@ -37,7 +36,7 @@ import PeopleYouMayKnow from '@/components/PeopleYouMayKnow.vue';
                         <button href="#"
                             class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg">Post</button>
                     </div>
-                </form> 
+                </form>
             </div>
 
             <!-- <div class="p-4 bg-white border border-gray-200 rounded-lg">
@@ -112,15 +111,18 @@ import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
 import FeedItem from '../components/FeedItem.vue'
 import { useUserStore } from '@/stores/user';
+import { useToastStore } from '@/stores/toast' 
 
 export default {
     name: 'ProfileView',
 
     setup() {
         const userStore = useUserStore()
+        const toastStore = useToastStore()
 
         return {
-            userStore
+            userStore,
+            toastStore,
         }
     },
 
@@ -153,12 +155,17 @@ export default {
     },
 
     methods: {
-        
-        sendFriendshipRequest(){
+
+        sendFriendshipRequest() {
             axios
-                .post(`/api/friendship/request/${this.$route.params.id}/`)
+                .post(`/api/friends/${this.$route.params.id}/request/`)
                 .then(Response => {
-                    console.log("response ", Response.data)
+                    if (Response.data.message === 'exist') {
+                        this.toastStore.showToast(5000, 'You already sent a firendship request to this user', 'bg-red-500')
+                    }
+                    else {
+                        this.toastStore.showToast(5000, 'your friendship reqeust has been sent successfuly', 'bg-emerald-500')
+                    }
                 })
                 .catch(error => {
                     console.log('error', error)
