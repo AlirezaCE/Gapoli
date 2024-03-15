@@ -23,7 +23,7 @@
                     class="text-center bg-gradient-to-r from-sky-300 to-blue-400 rounded-lg px-6 py-4 text-lg font-semibold text-white ">
                     Friendship requests</h1>
                 <div class="p-4 bg-gray-200 border border-gray-300 text-center rounded-lg my-4"
-                    v-for="request in requests" v-bind:key="request.id">
+                    v-for="(request, index) in requests" v-bind:key="request.id" v-show="!request.hide">
                     <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
                         class="mb-6 rounded-full mx-auto w-[140px]">
 
@@ -42,11 +42,11 @@
 
                     <div class="mt-6 space-x-4">
                         <button class="inline-block py-3 px-4 bg-purple-600 text-white rounded-lg"
-                            @click="handleRequest('accepted', request.sender.id)">
+                            @click="handleRequest('accepted', request.sender.id, request.sender.name, index)">
                             Accept
                         </button>
                         <button class="inline-block py-3 px-4 bg-red-500 text-white rounded-lg"
-                            @click="handleRequest('rejected', request.sender.id)">
+                            @click="handleRequest('rejected', request.sender.id, request.sender.name, index)">
                             Reject
                         </button>
                     </div>
@@ -91,11 +91,17 @@
 import axios from 'axios'
 import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
+import { useToastStore } from '@/stores/toast' 
 
 export default {
     name: 'FriendView',
 
     setup() {
+        const toastStore = useToastStore()
+
+        return {
+            toastStore,
+        }
     },
 
     components: {
@@ -129,11 +135,20 @@ export default {
                 })
         },
 
-        handleRequest(status, sender_id) {
+        handleRequest(status, sender_id, sender_name, index) {
             axios
                 .post(`/api/friends/${sender_id}/${status}/`)
                 .then(Response => {
-                    console.log('this is response ', Response.data.message);
+                    if (Response.data.message === 'accepted') {
+                        this.toastStore.showToast(5000, `${sender_name} is your friend now 😄`, 'bg-emerald-500')
+                        this.friends.unshift(Response.data.sender)    
+                    }
+                    else {
+                        this.toastStore.showToast(5000, 'request for friendship rejected', 'bg-red-500')
+                    }
+
+                    this.requests[index].hide = true // hide the buttons when it's clicked
+                    this.requests.length = this.requests.length -1
                 })
                 .catch(error => {
                     console.log('error', error)

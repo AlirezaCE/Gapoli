@@ -13,14 +13,21 @@
                     </RouterLink>
                     <p class="text-xs text-gray-500">23 posts</p>
                 </div>
-                <div class="mt-6">
-                    <button v-if="userStore.user.id !== user.id"
+                <div v-if="userStore.user.id !== user.id" class="mt-6">
+                    <button
                         class="inline-block py-3 px-4 bg-purple-600 text-white rounded-lg"
                         @click="sendFriendshipRequest">
-                        friendship request
+                        {{ friendshipButtonText }}
                     </button>
                 </div>
             </div>
+            <div class="mt-4">
+                    <button v-if="userStore.user.id === user.id"
+                        class="w-full py-3 px-4 bg-red-600 text-white rounded-lg"
+                        @click="logout">
+                        Logout
+                    </button>
+                </div>
         </div>
 
         <div class="main-center col-span-2 space-y-4">
@@ -137,6 +144,7 @@ export default {
             posts: [],
             body: '',
             user: '',
+            friendshipButtonText: '',
         }
     },
 
@@ -160,11 +168,21 @@ export default {
             axios
                 .post(`/api/friends/${this.$route.params.id}/request/`)
                 .then(Response => {
-                    if (Response.data.message === 'exist') {
-                        this.toastStore.showToast(5000, 'You already sent a firendship request to this user', 'bg-red-500')
+                    if (Response.data.message === 'canceled') { //when you send a request and you are sender of it
+                        this.friendshipButtonText = 'friendship request'
+                        this.toastStore.showToast(5000, 'you canceled sending friendship request', 'bg-emerald-500')
                     }
-                    else {
-                        this.toastStore.showToast(5000, 'your friendship reqeust has been sent successfuly', 'bg-emerald-500')
+                    else if (Response.data.message === 'canceled_friendship') { //when you send a request and you are sender of it
+                        this.friendshipButtonText = 'friendship request'
+                        this.toastStore.showToast(5000, 'you canceled friendship', 'bg-emerald-500')
+                    }
+                    else if(Response.data.message === 'accepted'){ // when second user also request for the friendship
+                        this.friendshipButtonText = 'cancel friendship request'
+                        this.toastStore.showToast(5000, 'You are friends now 🤩', 'bg-emerald-500')
+                    }
+                    else { //when there is not any request between the user
+                        this.friendshipButtonText = 'cancel friendship request'
+                        this.toastStore.showToast(5000, 'your friendship reqeust has been sent 👌', 'bg-emerald-500')
                     }
                 })
                 .catch(error => {
@@ -178,6 +196,7 @@ export default {
                 .then(Response => {
                     this.posts = Response.data.post
                     this.user = Response.data.user
+                    this.friendshipButtonText = Response.data.friendshipButtonText
                 })
                 .catch(error => {
                     console.log('error', error)
@@ -197,6 +216,11 @@ export default {
                 .catch(error => {
                     console.log('error', error)
                 })
+        },
+
+        logout() {
+            this.userStore.removeToken()
+            this.$router.push('/login')
         }
     }
 }

@@ -9,5 +9,5 @@ urlpatterns = [
     path('detail/', detail, name='detail'),
     path('friends/<uuid:id>/', firends_list, name='firends_list'),
     path('friends/<uuid:id>/request/', friendship_request, name='friendship_request'),
-    path('friends/<uuid:id>/<str:status>/', friendship_response, name='friendship_request'),
+    path('friends/<uuid:id>/<str:status>/', friendship_response, name='friendship_response'),
 ]

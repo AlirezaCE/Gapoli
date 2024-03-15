@@ -43,7 +43,7 @@
 
 				<div class="menu-right">
 				
-					<template v-if="userStore.user.isAuthenticated">
+					<template v-if="userStore.user.id">
 						<RouterLink :to="{'name': 'profile', params:{'id': userStore.user.id}}">
 							<img style="width: 50px;"
 								src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"

@@ -1,6 +1,8 @@
-from django.http import JsonResponse
-
+from django.http import JsonResponse, HttpRequest
+from django.shortcuts import redirect
+from django.urls import reverse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
 from .form import SingupForm
 from .models import User, FriendshipRequest
 from .models import SENT, ACCEPTED, REJECTED
@@ -59,11 +61,29 @@ def firends_list(request, id):
 def friendship_request(request, id):
     user_reciver = User.objects.get(pk=id)
     
-    if FriendshipRequest.objects.filter(reciver=user_reciver, sender=request.user).exists():
-        return JsonResponse({'message': 'exist'})
+    if FriendshipRequest.objects.filter(reciver=user_reciver, sender=request.user, status=SENT).exists():
+        FriendshipRequest.objects.filter(reciver=user_reciver, sender=request.user, status=SENT).delete()
+        return JsonResponse({'message': 'canceled'})
+    elif FriendshipRequest.objects.filter(reciver=user_reciver, sender=request.user, status=ACCEPTED).exists() or \
+         FriendshipRequest.objects.filter(reciver=request.user, sender=user_reciver, status=ACCEPTED).exists():
+        deleteFriendship(request.user, user_reciver)
+        return JsonResponse({'message': 'canceled_friendship'})
+    elif FriendshipRequest.objects.filter(reciver=request.user, sender=user_reciver, status=SENT).exists():
+        friendship_response_func(sender=user_reciver, reciver=request.user, status=ACCEPTED)
+        return JsonResponse({'message': ACCEPTED})
+    elif FriendshipRequest.objects.filter(reciver=user_reciver, sender=request.user, status=REJECTED):
+        friendshipRequest = FriendshipRequest.objects.get(reciver=user_reciver, sender=request.user, status=REJECTED)
+        friendshipRequest.status = SENT
+        friendshipRequest.save()
+        return JsonResponse({'message': 'sent'})
+    elif FriendshipRequest.objects.filter(reciver=request.user, sender=user_reciver, status=REJECTED):
+        friendshipRequest = FriendshipRequest.objects.get(reciver=request.user, sender=user_reciver, status=REJECTED)
+        friendshipRequest.status = SENT
+        friendshipRequest.save()        
+        return JsonResponse({'message': 'sent'})
     else:
         FriendshipRequest.objects.create(reciver=user_reciver, sender=request.user)
-        return JsonResponse({'message': 'successful'})
+        return JsonResponse({'message': 'sent'})
 
 
 
@@ -71,7 +91,15 @@ def friendship_request(request, id):
 def friendship_response(request, id, status): 
     sender = User.objects.get(id=id)   
     reciver = request.user
+    if FriendshipRequest.objects.filter(reciver=reciver, sender=sender, status=SENT).exists():
+        friendship_response_func(sender=sender, reciver=reciver, status=status)
+        return JsonResponse({'message': status, 'sender':UserSerializer(sender).data})
+    return JsonResponse({'message': 'exist'})
+# to do --- complete the senario to return appropriate response when request answered once        
     
+
+
+def friendship_response_func(sender, reciver, status): 
     friendship_request = FriendshipRequest.objects.filter(reciver=reciver).get(sender=sender)
     friendship_request.status = status
     friendship_request.save()
@@ -84,5 +112,16 @@ def friendship_response(request, id, status):
         reciver.friends.add(sender)
         reciver.friends_count += 1        
         reciver.save()
-        
-    return JsonResponse({'message': f"request for friendship is {status}"})
+
+def deleteFriendship(user1,user2):
+    if FriendshipRequest.objects.filter(reciver=user1, sender=user2).exists():
+        FriendshipRequest.objects.filter(reciver=user1, sender=user2).delete()
+    if FriendshipRequest.objects.filter(reciver=user2, sender=user1).exists():
+        FriendshipRequest.objects.filter(reciver=user2, sender=user1).delete()
+    
+    user1.friends.remove(user2)
+    user1.friends_count -= 1
+    user1.save()
+    user2.friends.remove(user1)
+    user2.friends_count -= 1
+    user2.save()
