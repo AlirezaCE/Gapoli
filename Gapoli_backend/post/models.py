@@ -12,10 +12,18 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    text = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class PostAttachment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     attachment = models.ImageField(upload_to='post_attachments')
 #    created_by = models.ForeignKey(User, related_name='post_attachments', on_deleted=models.CASCADE)
+
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -25,7 +33,8 @@ class Post(models.Model):
     created_by = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
     like = models.ManyToManyField(Like, blank=True)
     like_count = models.IntegerField(default=0)
-    
+    comment = models.ManyToManyField(Comment, blank=True)
+    comment_count = models.IntegerField(default=0)
     
     class Meta:
         ordering = ('-created_at',)

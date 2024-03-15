@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.db.models import Q
 
-from .models import Post, PostAttachment
+from .models import Post, PostAttachment, Like
 from .serializers import PostSerializer
 from .forms import PostForm
 from account.models import User, FriendshipRequest
@@ -15,7 +15,6 @@ def post_list(request):
     current_user = request.user
     
     posts = Post.objects.filter(Q(created_by=current_user) | Q(created_by__in=current_user.friends.all()))
-    #posts = Post.objects.all()
     serializer = PostSerializer(posts, many=True)
     
     return JsonResponse(serializer.data, safe=False)
@@ -53,6 +52,28 @@ def post_create(request):
     else:
         return JsonResponse({'error': "form is not valid"})
     
+@api_view(['POST'])
+def post_like(request, id):    
+    post = Post.objects.get(id=id)
+    
+    if not post.like.filter(created_by=request.user):
+        like = Like.objects.create(created_by=request.user)
+        
+        post.like_count += 1
+        post.like.add(like)
+        post.save()
+
+        return JsonResponse({'message': 'like'}, safe=False)   
+    else:        
+        like = Like.objects.get(created_by=request.user)
+        
+        post.like_count -= 1
+        post.like.remove(like)
+        like.delete()
+        
+        post.save()
+        
+        return JsonResponse({'message': 'takeback'})
     
 def getFriendshipButtonText(user1, user2):
     if FriendshipRequest.objects.filter(sender=user1, reciver=user2, status=SENT).exists():
