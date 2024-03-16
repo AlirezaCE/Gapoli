@@ -90,3 +90,5 @@ class Post(models.Model):
                         return f"{minutes} minute{'s' if minutes > 1 else ''}"
                     else:
                         return "just posted" 
+
+

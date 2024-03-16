@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from django.db.models import Q
 
 from .models import Post, PostAttachment, Like
-from .serializers import PostSerializer
+from .serializers import PostSerializer, PostDetailSerializer
 from .forms import PostForm
 from account.models import User, FriendshipRequest
 from account.models import SENT, ACCEPTED, REJECTED
@@ -16,6 +16,14 @@ def post_list(request):
     
     posts = Post.objects.filter(Q(created_by=current_user) | Q(created_by__in=current_user.friends.all()))
     serializer = PostSerializer(posts, many=True)
+    
+    return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def post_detail(request, id):        
+    posts = Post.objects.get(id=id)
+    serializer = PostDetailSerializer(posts)
     
     return JsonResponse(serializer.data, safe=False)
 
@@ -37,6 +45,7 @@ def user_post_profile(request, id):
         'friendshipButtonText': friendshipButtonText
         }, safe=False)
 
+
 @api_view(['POST'])
 def post_create(request):
     form = PostForm(request.data)
@@ -51,6 +60,7 @@ def post_create(request):
 
     else:
         return JsonResponse({'error': "form is not valid"})
+    
     
 @api_view(['POST'])
 def post_like(request, id):    
@@ -74,6 +84,7 @@ def post_like(request, id):
         post.save()
         
         return JsonResponse({'message': 'takeback'})
+    
     
 def getFriendshipButtonText(user1, user2):
     if FriendshipRequest.objects.filter(sender=user1, reciver=user2, status=SENT).exists():
