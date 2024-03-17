@@ -2,9 +2,9 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.db.models import Q
 
-from .models import Post, PostAttachment, Like
-from .serializers import PostSerializer, PostDetailSerializer
-from .forms import PostForm
+from .models import Post, PostAttachment, Like, Comment
+from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer
+from .forms import PostForm, CommentForm
 from account.models import User, FriendshipRequest
 from account.models import SENT, ACCEPTED, REJECTED
 from account.serializers import UserSerializer
@@ -84,6 +84,42 @@ def post_like(request, id):
         post.save()
         
         return JsonResponse({'message': 'takeback'})
+    
+    
+@api_view(['POST'])
+def post_comment(request, id):    
+    form = CommentForm(request.data)
+    
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.created_by = request.user
+        comment.save()
+        
+        post = Post.objects.get(id=id)
+        post.comment.add(comment)
+        post.comment_count += 1
+        post.save() 
+        
+        return JsonResponse({'comment': CommentSerializer(comment).data}, safe=False)
+
+    else:
+        return JsonResponse({'message': "form is not valid"})
+    
+    
+@api_view(['POST'])
+def post_comment_delete(request, p_id, c_id):    
+    post = Post.objects.get(id=p_id)
+    comment = post.comment.get(id=c_id)
+
+    if post and comment and comment.created_by == request.user:
+        post.comment_count -= 1
+        post.comment.remove(comment)
+        post.save()
+        
+        return JsonResponse({'message': 'deleted'})
+    
+    else:
+        return JsonResponse({'message': 'failed'})
     
     
 def getFriendshipButtonText(user1, user2):

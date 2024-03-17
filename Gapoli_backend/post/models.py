@@ -17,7 +17,10 @@ class Comment(models.Model):
     text = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
+    class Meta:
+        ordering = ('-created_at',)
+        
     def since_created(self):
             total_seconds = (timezone.now() - self.created_at).total_seconds()
 

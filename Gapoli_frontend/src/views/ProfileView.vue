@@ -21,9 +21,9 @@
                     </button>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-4 flex justify-center">
                     <button v-if="userStore.user.id === user.id"
-                        class="w-full py-3 px-4 bg-red-600 text-white rounded-lg"
+                        class="w-10/12 py-3 px-4 bg-red-600 text-white rounded-lg"
                         @click="logout">
                         Logout
                     </button>

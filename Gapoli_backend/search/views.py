@@ -6,6 +6,7 @@ from account.serializers import UserSerializer
 from post.models import Post
 from post.serializers import PostSerializer
 
+
 @api_view(['POST'])
 def search(request):
     data = request.data
