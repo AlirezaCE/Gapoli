@@ -190,7 +190,24 @@ export default {
                 .catch(error => {
                     console.log('error', error)
                 })
-        }
+        },
+
+        like_post(post_id) {
+            axios
+                .post(`/api/post/like/${post_id}/`)
+                .then(Response => {
+                    console.log(Response.data);
+                    if (Response.data.message === 'like') {
+                        this.post.like_count += 1
+                    }
+                    else if (Response.data.message === 'takeback') {
+                        this.post.like_count -= 1
+                    }
+                })
+                .catch(error => {
+                    console.log('error ', error);
+                })
+        },
     }
 }
 </script>

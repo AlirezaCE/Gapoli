@@ -75,7 +75,7 @@ def post_like(request, id):
 
         return JsonResponse({'message': 'like'}, safe=False)   
     else:        
-        like = Like.objects.get(created_by=request.user)
+        like = post.like.get(created_by=request.user)
         
         post.like_count -= 1
         post.like.remove(like)
