@@ -3,28 +3,16 @@
         <div class="main-left col-span-1">
             <div class="p-4 bg-white border border-gray-200 rounded-lg">
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between">
+                    <div v-for="conversation in conversations" v-bind:key="conversation.id" class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
                             <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
-                            <p class="text-xs"><strong>Hulk Smash</strong></p>
+                            <p v-for="user in conversation.users" v-bind:key="user.id" class="text-xs">
+                                <strong v-if="userStore.user.id !== user.id">
+                                    {{ user.name }}
+                                </strong>
+                            </p>
                         </div>
-                        <span class="text-xs text-gray-500">18 minutes ago</span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
-                            <p class="text-xs"><strong>Hulk Smash</strong></p>
-                        </div>
-                        <span class="text-xs text-gray-500">18 minutes ago</span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
-                            <p class="text-xs"><strong>Hulk Smash</strong></p>
-                        </div>
-                        <span class="text-xs text-gray-500">18 minutes ago</span>
+                        <span class="text-xs text-gray-500">{{ conversation.since_modified }} ago</span>
                     </div>
                 </div>
             </div>
@@ -98,3 +86,41 @@
         </div>
     </div>
 </template>
+
+
+<script>
+import axios from 'axios';
+import { useUserStore } from '@/stores/user'
+
+export default {
+    name:'ChatView',
+
+    setup() {
+        const userStore = useUserStore()
+
+        return {
+            userStore
+        }
+    },
+
+    data() {
+        return {
+            conversations: [],
+        }
+    },
+
+    mounted() {
+        this.getConversations()
+    },
+
+    methods: {
+        getConversations(){
+            axios
+                .get('/api/chat/')
+                .then(Response => {
+                    this.conversations = Response.data;
+                })
+        }
+    }
+}
+</script>
