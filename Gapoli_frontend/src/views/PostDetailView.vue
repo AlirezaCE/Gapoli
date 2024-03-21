@@ -160,12 +160,9 @@ export default {
         },
 
         comment() {
-            console.log('comment is ', this.text)
-
             axios
                 .post(`/api/post/comment/${this.$route.params.id}/`, { 'text': this.text })
                 .then(Response => {
-                    console.log('data from back', Response.data)
                     if (Response.data.comment.text === this.text) {
                         this.post.comment.unshift(Response.data.comment)
                         this.post.comment_count += 1
@@ -181,7 +178,6 @@ export default {
             axios
                 .post(`/api/post/comment/delete/${this.$route.params.id}/${comment_id}/`)
                 .then(Response => {
-                    console.log('data from back', Response.data)
                     if (Response.data.message === "deleted") {
                         this.post.comment[index].hide = true
                         this.post.comment_count -= 1

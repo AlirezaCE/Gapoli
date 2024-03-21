@@ -3,9 +3,11 @@
         <div class="main-left col-span-1">
             <div class="p-4 bg-white border border-gray-200 rounded-lg">
                 <div class="space-y-4">
-                    <div v-for="conversation in conversations" v-bind:key="conversation.id" class="flex items-center justify-between">
+                    <div v-for="conversation in conversations" v-bind:key="conversation.id"
+                        class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
-                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
+                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
+                                class="rounded-full w-[40px]">
                             <p v-for="user in conversation.users" v-bind:key="user.id" class="text-xs">
                                 <strong v-if="userStore.user.id !== user.id">
                                     {{ user.name }}
@@ -16,72 +18,66 @@
                     </div>
                 </div>
             </div>
-        </div> 
+        </div>
 
         <div class="main-center col-span-3 space-y-4">
 
             <div class="bg-white border border-gray-200 rounded-lg">
                 <div class="flex flex-col flex-grow p-4">
-                    <div class="flex w-full mt-2 space-x-3 max-w-md ml-auto justify-end">
-                        <div>
-                            <div class="bg-blue-600 text-white p-4 rounded-l-lg rounded-br-lg">
-                                <p class="text-sm">
-                                    Hey... <br>
-                                    How you doing to day?
-                                </p>
+                    <div v-for="message in this.active_conversation.messages" v-bind:key="message.id">
+                        <div v-if="message.sender.id === userStore.user.id"
+                            class="flex w-full mt-2 space-x-3 max-w-md ml-auto justify-end">
+                            <div>
+                                <div class="bg-blue-600 text-white p-4 rounded-l-lg rounded-br-lg">
+                                    <p class="text-sm">
+                                        {{ message.body }}
+                                    </p>
+                                </div>
+                                <span class="text-xs text-gray-500 leading-none">{{ message.since_created }} ago</span>
                             </div>
-                            <span class="text-xs text-gray-500 leading-none">2 minutes ago</span>
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
+                                <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
+                                    class="rounded-full w-[40px]">
+                            </div>
                         </div>
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
-                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
+
+                        <div v-if="message.sender.id !== userStore.user.id" class="flex w-full mt-2 space-x-3 max-w-md">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
+                                <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg"
+                                    class="rounded-full w-[40px]">
+                            </div>
+                            <div>
+                                <div class="bg-purple-400 p-4 rounded-r-lg rounded-bl-lg">
+                                    <p class="text-sm">
+                                        {{ message.body }}
+                                    </p>
+                                </div>
+                                <span class="text-xs text-gray-500 leading-none">{{ message.since_created }} ago</span>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="flex w-full mt-2 space-x-3 max-w-md ml-auto justify-end">
-                        <div>
-                            <div class="bg-blue-600 text-white p-4 rounded-l-lg rounded-br-lg">
-                                <p class="text-sm">
-                                    the strongest avenger is here........... I am always looking for things to smash
-                                </p>
-                            </div>
-                            <span class="text-xs text-gray-500 leading-none">2 minutes ago</span>
-                        </div>
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
-                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
-                        </div>
-                    </div>
-
-                    <div class="flex w-full mt-2 space-x-3 max-w-md">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
-                            <img src="https://img.favpng.com/8/7/15/hulk-superhero-icon-png-favpng-j7ZaifhXrReBKUiFaaMYQ22JJ.jpg" class="rounded-full w-[40px]">
-                        </div>
-                        <div>
-                            <div class="bg-purple-400 p-4 rounded-r-lg rounded-bl-lg">
-                                <p class="text-sm">
-                                    the strongest avenger is here........... I am always looking for things to smash
-                                </p>
-                            </div>
-                            <span class="text-xs text-gray-500 leading-none">2 minutes ago</span>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
 
             <div class="p-2 bg-white border border-gray-200 rounded-lg">
-                <div class="p-4 max-w-7xl mx-auto grid grid-cols-10 gap-4">
-                    <div class="col-span-9">
-                        <textarea class="p-4 w-full bg-gray-100 rounded-lg" placeholder="Message"></textarea>
+                <form v-on:submit.prevent="sendMessage()" method="post">
+                    <div class="p-4 max-w-7xl mx-auto grid grid-cols-10 gap-4">
+                        <div class="col-span-9">
+                            <textarea v-model="text" class="p-4 w-full bg-gray-100 rounded-lg" placeholder="Message">
+                        </textarea>
+                        </div>
+                        <div class="col-span-1 flex items-center justify-center">
+                            <button href="#" class="inline-block py-2 px-2 bg-purple-500 text-white rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-span-1 flex items-center justify-center">
-                        <a href="#" class="inline-block py-2 px-2 bg-purple-500 text-white rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -93,7 +89,7 @@ import axios from 'axios';
 import { useUserStore } from '@/stores/user'
 
 export default {
-    name:'ChatView',
+    name: 'ChatView',
 
     setup() {
         const userStore = useUserStore()
@@ -106,6 +102,8 @@ export default {
     data() {
         return {
             conversations: [],
+            active_conversation: {},
+            text: '',
         }
     },
 
@@ -114,11 +112,43 @@ export default {
     },
 
     methods: {
-        getConversations(){
+        getConversations() {
             axios
                 .get('/api/chat/')
                 .then(Response => {
                     this.conversations = Response.data;
+
+                    if (this.conversations.length) {
+                        this.active_conversation = this.conversations[0]
+                        this.getMessages(this.active_conversation.id)
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+
+        getMessages() {
+            axios
+                .get(`/api/chat/${this.active_conversation.id}/`)
+                .then(Response => {
+                    this.active_conversation = Response.data;
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+
+        sendMessage() {
+            axios
+                .post(`/api/chat/send/${this.active_conversation.id}/`, { 'body': this.text })
+                .then(Response => {
+                    console.log(Response.data);
+                    this.active_conversation.messages.push(Response.data)
+                    this.text = ''
+                })
+                .catch(error => {
+                    console.log(error);
                 })
         }
     }

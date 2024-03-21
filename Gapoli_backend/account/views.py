@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
-from .form import SingupForm
+from .forms import SingupForm
 from .models import User, FriendshipRequest
 from .models import SENT, ACCEPTED, REJECTED
 from .serializers import UserSerializer, FriendshipRequestSerializer
