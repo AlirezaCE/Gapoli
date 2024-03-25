@@ -38,6 +38,11 @@ const router = createRouter({
       component: ChatView
     },
     {
+      path: '/chat/:reciver_id',
+      name: 'chat_by_reciver_id',
+      component: ChatView
+    },
+    {
       path: '/search',
       name: 'search',
       component: SearchView

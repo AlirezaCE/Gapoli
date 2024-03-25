@@ -14,20 +14,26 @@
                     <p class="text-xs text-gray-500">23 posts</p>
                 </div>
                 <div v-if="userStore.user.id !== user.id" class="mt-6">
-                    <button
-                        class="inline-block py-3 px-4 bg-purple-600 text-white rounded-lg"
-                        @click="sendFriendshipRequest">
-                        {{ friendshipButtonText }}
-                    </button>
+                    <div>
+                        <button
+                            class="inline-block py-3 px-6 bg-purple-600 text-white rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
+                            @click="sendFriendshipRequest">
+                            {{ friendshipButtonText }}
+                        </button>
+                        <button
+                            class="inline-block py-3 mt-4 px-6 bg-purple-600 text-white rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
+                            @click="sendMessage(user.id)">
+                            Message
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="mt-4 flex justify-center">
-                    <button v-if="userStore.user.id === user.id"
-                        class="w-10/12 py-3 px-4 bg-red-600 text-white rounded-lg"
-                        @click="logout">
-                        Logout
-                    </button>
-                </div>
+                <button v-if="userStore.user.id === user.id" class="w-10/12 py-3 px-4 bg-red-600 text-white rounded-lg"
+                    @click="logout">
+                    Logout
+                </button>
+            </div>
         </div>
 
         <div class="main-center col-span-2 space-y-4">
@@ -118,7 +124,7 @@ import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
 import FeedItem from '../components/FeedItem.vue'
 import { useUserStore } from '@/stores/user';
-import { useToastStore } from '@/stores/toast' 
+import { useToastStore } from '@/stores/toast'
 
 export default {
     name: 'ProfileView',
@@ -176,7 +182,7 @@ export default {
                         this.friendshipButtonText = 'friendship request'
                         this.toastStore.showToast(5000, 'you canceled friendship', 'bg-emerald-500')
                     }
-                    else if(Response.data.message === 'accepted'){ // when second user also request for the friendship
+                    else if (Response.data.message === 'accepted') { // when second user also request for the friendship
                         this.friendshipButtonText = 'cancel friendship request'
                         this.toastStore.showToast(5000, 'You are friends now 🤩', 'bg-emerald-500')
                     }
@@ -221,7 +227,18 @@ export default {
         logout() {
             this.userStore.removeToken()
             this.$router.push('/login')
-        }
+        },
+
+        sendMessage(reciver_id) {
+            axios
+                .post('/api/chat/start_direct/', { 'reciver_id': reciver_id})
+                .then(Response => {
+                    this.$router.push(`/chat/${reciver_id}/`)
+                })
+                .catch(error => {
+                    console.log('error', error)
+                })
+        },
     }
 }
 </script>
