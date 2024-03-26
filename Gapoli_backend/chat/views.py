@@ -19,28 +19,15 @@ def conversation_list(request):
 
 
 @api_view(['GET'])
-def conversation_detail(request, id, id_type):   
+def conversation_detail(request, id):   
     user = request.user
 
-    if id_type == 'conversation':
-        if Conversation.objects.filter(users__in=list([user])).get(id=id):
-            conversation = Conversation.objects.filter(users__in=list([user])).get(id=id)   
-            serializer = ConversationDetailSerializer(conversation)
-            
-            return JsonResponse(serializer.data, safe=False) 
+    if Conversation.objects.filter(users__in=list([user])).get(id=id):
+        conversation = Conversation.objects.filter(users__in=list([user])).get(id=id)   
+        serializer = ConversationDetailSerializer(conversation)
         
-    elif id_type == 'reciver':
-        reciver = User.objects.get(id=id)
-        users = [user, reciver]
-        existing_conversation = Conversation.objects.filter(
-                users__in=users
-            ).annotate(num_users=Count('users')).filter(num_users=len(users)).first()
-        
-        if existing_conversation:
-            serializer = ConversationDetailSerializer(existing_conversation)
-            
-            return JsonResponse(serializer.data, safe=False)
-    
+        return JsonResponse(serializer.data, safe=False) 
+
     else:
             return JsonResponse("not found", safe=False)
             
@@ -87,3 +74,22 @@ def create_direct_conversation(request):
     new_conversation.users.add(*users)
     
     return JsonResponse({'message': 'created'})
+
+
+
+@api_view(['GET'])
+def get_conversation_by_reciver_id(request, id):
+    user = request.user
+    reciver = User.objects.get(id=id)
+    users = [user, reciver]
+    existing_conversation = Conversation.objects.filter(
+            users__in=users
+        ).annotate(num_users=Count('users')).filter(num_users=len(users)).first()
+    
+    if existing_conversation:
+        serializer = ConversationDetailSerializer(existing_conversation)
+        
+        return JsonResponse(serializer.data, safe=False)
+    
+    else:
+        return JsonResponse("not found", safe=False)

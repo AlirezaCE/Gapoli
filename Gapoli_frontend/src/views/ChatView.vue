@@ -143,8 +143,15 @@ export default {
                     this.conversations = Response.data;
 
                     if (this.conversations.length) {
-                        this.active_conversation = this.conversations[0]
-                        this.getMessages(this.active_conversation.id)
+                        console.log('reciver_id', this.$route.params.reciver_id);
+                        if (this.$route.params.reciver_id) {
+                            this.setActiveConversationByReciverId(this.$route.params.reciver_id)
+                        }
+                        else{
+                            this.active_conversation = this.conversations[0]
+                            this.getMessages(this.active_conversation.id)
+
+                        }
                     }
                 })
                 .catch(error => {
@@ -153,17 +160,10 @@ export default {
         },
 
         getMessages() {
-            let id_type = 'conversation'
-
-            if (this.$route.params.reciver_id){
-                this.active_conversation.id = this.$route.params.reciver_id
-                id_type = 'reciver'
-            }
-
+console.log("getmessages");
             axios
-                .get(`/api/chat/${this.active_conversation.id}/${id_type}/`)
+                .get(`/api/chat/${this.active_conversation.id}/`)
                 .then(Response => {
-                    console.log('aaaaaaaa', Response.data);
                     this.active_conversation = Response.data;
                 })
                 .catch(error => {
@@ -184,7 +184,7 @@ export default {
                         console.log(error);
                     })
             }
-            else{
+            else {
                 this.toastStore.showToast(5000, 'There is no active conversation', 'bg-emerald-500')
             }
         },
@@ -193,6 +193,20 @@ export default {
             this.active_conversation = conversation
             this.getMessages()
         },
+
+        setActiveConversationByReciverId(reciver_id){
+            axios
+                .get(`/api/chat/get_conv_reciver_id/${reciver_id}/`)
+                .then(Response => {
+                    console.log('setActiveConversationByReciverId', Response.data);
+                    this.active_conversation = Response.data;
+                    this.$router.push(`/chat/`)
+                    this.getMessages(this.active_conversation.id)
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        }
     }
 }
 </script>
