@@ -11,7 +11,8 @@
                     <RouterLink :to="{ 'name': 'friends', params: { id: user.id } }" class="text-xs text-gray-500">
                         {{ user.friends_count }} {{ user.friends_count == 1 ? 'friend' : 'friends' }}
                     </RouterLink>
-                    <p class="text-xs text-gray-500">23 posts</p>
+                    <p class="text-xs text-gray-500">{{ user.post_count }} {{ user.post_count == 1 ? 'post' : 'posts' }}
+                    </p>
                 </div>
                 <div v-if="userStore.user.id !== user.id" class="mt-6">
                     <div>
@@ -210,14 +211,14 @@ export default {
         },
 
         submitForm() {
-            console.log('body is ', this.body)
-
             axios
                 .post('/api/post/create/', { 'body': this.body })
                 .then(Response => {
-                    console.log('data from back', Response.data)
-                    this.posts.unshift(Response.data)
-                    this.body = ''
+                    if (Response.data.id) {
+                        this.posts.unshift(Response.data)
+                        this.user.post_count += 1
+                        this.body = ''
+                    }
                 })
                 .catch(error => {
                     console.log('error', error)
@@ -231,7 +232,7 @@ export default {
 
         sendMessage(reciver_id) {
             axios
-                .post('/api/chat/start_direct/', { 'reciver_id': reciver_id})
+                .post('/api/chat/start_direct/', { 'reciver_id': reciver_id })
                 .then(Response => {
                     this.$router.push(`/chat/${reciver_id}/`)
                 })

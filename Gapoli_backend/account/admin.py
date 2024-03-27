@@ -6,7 +6,7 @@ class FriendshipRequestAdmin(admin.ModelAdmin):
     list_display = ('id', 'status', 'reciver', 'sender') 
     
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'name', 'friends_count', 'is_superuser') 
+    list_display = ('id', 'email', 'name', 'friends_count', 'post_count', 'is_superuser') 
     
     
 admin.site.register(User, UserAdmin)

@@ -66,7 +66,7 @@ def friendship_request(request, id):
         return JsonResponse({'message': 'canceled'})
     elif FriendshipRequest.objects.filter(reciver=user_reciver, sender=request.user, status=ACCEPTED).exists() or \
          FriendshipRequest.objects.filter(reciver=request.user, sender=user_reciver, status=ACCEPTED).exists():
-        deleteFriendship(request.user, user_reciver)
+        delete_friendship(request.user, user_reciver)
         return JsonResponse({'message': 'canceled_friendship'})
     elif FriendshipRequest.objects.filter(reciver=request.user, sender=user_reciver, status=SENT).exists():
         friendship_response_func(sender=user_reciver, reciver=request.user, status=ACCEPTED)
@@ -94,9 +94,7 @@ def friendship_response(request, id, status):
     if FriendshipRequest.objects.filter(reciver=reciver, sender=sender, status=SENT).exists():
         friendship_response_func(sender=sender, reciver=reciver, status=status)
         return JsonResponse({'message': status, 'sender':UserSerializer(sender).data})
-    return JsonResponse({'message': 'exist'})
-# to do --- complete the senario to return appropriate response when request answered once        
-    
+    return JsonResponse({'message': 'exist'})    
 
 
 def friendship_response_func(sender, reciver, status): 
@@ -113,7 +111,7 @@ def friendship_response_func(sender, reciver, status):
         reciver.friends_count += 1        
         reciver.save()
 
-def deleteFriendship(user1,user2):
+def delete_friendship(user1,user2):
     if FriendshipRequest.objects.filter(reciver=user1, sender=user2).exists():
         FriendshipRequest.objects.filter(reciver=user1, sender=user2).delete()
     if FriendshipRequest.objects.filter(reciver=user2, sender=user1).exists():

@@ -53,6 +53,8 @@ def post_create(request):
     if form.is_valid():
         post = form.save(commit=False)
         post.created_by = request.user
+        post.created_by.post_count += 1
+        post.created_by.save()
         post.save()
         
         serializer = PostSerializer(post)

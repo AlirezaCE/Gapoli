@@ -29,7 +29,7 @@ def conversation_detail(request, id):
         return JsonResponse(serializer.data, safe=False) 
 
     else:
-            return JsonResponse("not found", safe=False)
+        return JsonResponse("not found", safe=False)
             
 
 @api_view(['POST'])
@@ -58,9 +58,12 @@ def send_message(request, id):
 @api_view(['POST'])
 def create_direct_conversation(request):
     user = request.user
+    
+    #get reciver user
     reciver_id = request.data.get('reciver_id')
     reciver = User.objects.get(id=reciver_id)
     
+    #two users in direct conversation
     users = [user, reciver]
     
     existing_conversation = Conversation.objects.filter(
@@ -70,10 +73,11 @@ def create_direct_conversation(request):
     if existing_conversation:
         return JsonResponse({'message': 'exists'})
     
-    new_conversation = Conversation.objects.create()
-    new_conversation.users.add(*users)
-    
-    return JsonResponse({'message': 'created'})
+    else:
+        new_conversation = Conversation.objects.create()
+        new_conversation.users.add(*users)
+        
+        return JsonResponse({'message': 'created'})
 
 
 

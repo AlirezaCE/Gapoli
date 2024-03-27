@@ -43,6 +43,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=225, blank=True, null=True, default='')
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
+    post_count = models.IntegerField(default=0)
+    
     friends = models.ManyToManyField('self', blank=True)
     friends_count = models.IntegerField(default=0)
 
